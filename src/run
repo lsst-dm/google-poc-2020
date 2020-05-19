@@ -5,10 +5,7 @@ docker run \
     -e GOOGLE_APPLICATION_CREDENTIALS=/secrets/light-team-275220-2a60dc727e58.json \
     harness:local \
     -d gs://rubinobs-poc-alert/gsapi \
-    -s 05:28 \
     -n 5 \
     -c CC \
     -I ./data \
-    -z \
-    R22-S00 R22-S01
-
+    "$@"
