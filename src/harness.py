@@ -80,10 +80,10 @@ def copy(source: Path, temp: Path, dest: Path, compress: bool = False) -> Path:
         logging.info(f"Copying {source} to {temp / dest}")
         with source.open("rb") as s:
             with (temp / dest).open("wb") as d:
-                subprocess.run("gzip", stdin=s, stdout=d)
+                subprocess.run(["gzip"], stdin=s, stdout=d)
     else:
         logging.info(f"Copying {source} to {temp / dest}")
-        subprocess.run(f"cp {source} {temp / dest}")
+        subprocess.run(["cp", f"{source}", f"{temp / dest}"])
     return dest
 
 
