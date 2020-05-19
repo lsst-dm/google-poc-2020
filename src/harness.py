@@ -179,7 +179,7 @@ def simulate(
     numexp: int
 ):
     hr, min = starttime.split(":")
-    seqnum_start = int(hr + min)
+    seqnum_start = int(hr + min) * 10
 
     input_path = {ccd: find_input(inputdir, ccd) for ccd in ccd_list}
 
