@@ -4,6 +4,7 @@ from __future__ import annotations
 import abc
 import argparse
 from datetime import datetime
+import functools
 import logging
 from pathlib import Path
 import subprocess
@@ -73,6 +74,23 @@ def find_input(dir: Path, ccd: str) -> Path:
     raise RuntimeError(f"No CCD file found for {ccd}")
 
 
+def log_timing(func):
+
+    @functools.wraps(func)
+    def wrapper(self, *args, **kwargs):
+        logging.info(f"Start {func.__name__}")
+        start = time.time()
+        try:
+            res = func(self, *args, **kwargs)
+        finally:
+            delta = time.time() - start
+            logging.info(f"End {func.__name__} = {delta}")
+        return res
+
+    return wrapper
+
+
+@log_timing
 def copy(source: Path, temp: Path, dest: Path, compress: bool = False) -> Path:
     (temp / dest).parent.mkdir(parents=True, exist_ok=True)
     if compress:
@@ -117,6 +135,7 @@ class GsapiUploader(Uploader):
                      f", saving prefix '{self.prefix}'")
         self.bucket = storage.Client().bucket(bucket)
 
+    @log_timing
     def transfer(self, temp_dir: Path, source: Path):
         logging.info(f"gsapi: uploading to {self.prefix}/{source}")
         if self.prefix == "":
@@ -131,6 +150,7 @@ class GsutilUploader(Uploader):
         logging.info(f"gsutil: saving URL {dest}")
         self.url = dest
 
+    @log_timing
     def transfer(self, temp_dir: Path, source: Path):
         logging.info(f"gsutil: cp to {self.url}/{source}")
         subprocess.run(["gsutil/gsutil", "cp",
@@ -145,6 +165,7 @@ class HttpUploader(Uploader):
         self.url = dest
         self.session = requests.Session()
 
+    @log_timing
     def transfer(self, temp_dir: Path, source: Path):
         logging.info(f"http: putting to {self.url}/{source}")
         with (temp_dir / source).open("rb") as s:
@@ -158,6 +179,7 @@ class ScpUploader(Uploader):
         logging.info(f"scp: saving host {self.host} and path {path}")
         self.path = Path(path)
 
+    @log_timing
     def transfer(self, temp_dir: Path, source: Path):
         logging.info(f"scp: dir {self.path / source.parent}; file {source}")
         with (temp_dir / source).open("rb") as s:
@@ -205,18 +227,23 @@ def simulate(
                 logging.info(f"Copying from {source_path} to"
                              f" {temp_path / dest_path}"
                              f" with compress = {compress}")
+                logging.info("Begin copy")
                 dest_path = copy(source_path, temp_path, dest_path, compress)
-                logging.info("Copy done")
+                logging.info("End copy")
+                logging.info("Begin transfer")
                 uploader.transfer(temp_path, dest_path)
-                logging.info("Transfer done")
+                logging.info("End transfer")
             time.sleep(interval)
 
 
 def main():
-    logging.basicConfig(format="{process:7d} {asctime} {message}", style="{",
-                        level="INFO")
     parser = build_parser()
     args = parser.parse_args()
+    logging.basicConfig(
+        format=f"{args.ccd_list}" + " {asctime} {message}",
+        style="{",
+        level="INFO"
+    )
     simulate(
         args.starttime,
         args.inputdir,
