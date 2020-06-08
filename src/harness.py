@@ -43,14 +43,21 @@ def build_parser() -> argparse.ArgumentParser:
     return parser
 
 
-def wait_until(hour: int, minute: int):
-    when = datetime.now().replace(hour=hour, minute=minute, second=0)
-    delay = (when - datetime.now()).total_seconds()
-    if delay < 0:
-        # add one day
-        delay += 24 * 3600
-    logging.info(f"Sleeping {delay} seconds until {hour}:{minute}")
-    time.sleep(delay)
+class Waiter:
+    def __init__(self, hour: int, minute: int, interval: int):
+        self.base_time = datetime.now().replace(hour=hour, minute=minute,
+                                                second=0, microsecond=0)
+        self.interval = interval
+
+    def wait_exposure(num: int):
+        when = self.base_time + timedelta(seconds=num * self.interval)
+        delay = (when - datetime.now()).total_seconds()
+        delay_str = f"{abs(delay)} seconds for exposure {num} at {when}"
+        if delay < 0:
+            logging.info("Late " + delay_str)
+            return
+        logging.info("Sleeping " + delay_str)
+        time.sleep(delay)
 
 
 def find_input(dir: Path, ccd: str) -> Path:
@@ -207,7 +214,7 @@ def simulate(
 
     uploader = Uploader.create(destination)
 
-    wait_until(int(hr), int(min))
+    waiter = Waiter(int(hr), int(min), interval)
 
     now = datetime.now()
     obs_day = now.strftime("%Y%m%d")
@@ -217,6 +224,7 @@ def simulate(
         logging.info(f"Using temp directory {temp_dir}")
         temp_path = Path(temp_dir)
         for i in range(numexp):
+            waiter.wait_exposure(i)
             seqnum = seqnum_start + i
             for ccd in ccd_list:
                 source_path = input_path[ccd]
