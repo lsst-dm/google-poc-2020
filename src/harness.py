@@ -49,7 +49,7 @@ class Waiter:
                                                 second=0, microsecond=0)
         self.interval = interval
 
-    def wait_exposure(num: int):
+    def wait_exposure(self, num: int):
         when = self.base_time + timedelta(seconds=num * self.interval)
         delay = (when - datetime.now()).total_seconds()
         delay_str = f"{abs(delay)} seconds for exposure {num} at {when}"
