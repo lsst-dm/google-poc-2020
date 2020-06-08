@@ -241,7 +241,6 @@ def simulate(
                 logging.info("Begin transfer")
                 uploader.transfer(temp_path, dest_path)
                 logging.info("End transfer")
-            time.sleep(interval)
 
 
 def main():
