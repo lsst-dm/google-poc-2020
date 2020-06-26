@@ -1,9 +1,9 @@
-FROM alpine
-RUN apk add python3 openssh-client && ln -s /usr/bin/python3 /usr/bin/python
-RUN pip3 install google-cloud-storage
+FROM centos:7
+RUN yum install -y python3 openssh-clients
+RUN pip3 install google-cloud-storage minio boto3
 WORKDIR /root
-RUN wget https://storage.googleapis.com/pub/gsutil.tar.gz && tar xzf gsutil.tar.gz
 COPY data/ data/
+COPY bbcp bbcp
 COPY boto .boto
 COPY harness.py .
 ENTRYPOINT ["python3", "harness.py"]
