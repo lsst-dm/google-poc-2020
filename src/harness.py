@@ -1,4 +1,4 @@
-#!/bin/env python
+#!/usr/bin/env python
 
 from __future__ import annotations
 import abc
@@ -118,12 +118,16 @@ class Uploader(abc.ABC):
         logging.info(f"Creating uploader for {dest}")
         if dest.startswith("gsapi://"):
             return GsapiUploader(dest[len("gsapi://"):])
-        if dest.startswith("gs://"):
-            return GsutilUploader(dest)
+        if dest.startswith("boto://"):
+            return GsapiUploader(dest[len("boto://"):])
+        if dest.startswith("minio://"):
+            return GsapiUploader(dest[len("minio://"):])
         if dest.startswith("https://") or dest.startswith("http://"):
             return HttpUploader(dest)
-        if ":" in dest:
-            return ScpUploader(dest)
+        if dest.startswith("bbcp://"):
+            return HttpUploader(dest[len("bbcp://"):])
+        if dest.startswith("scp://"):
+            return ScpUploader(dest[len("scp://"):])
         raise RuntimeError(f"Unrecognized URL {dest}")
 
     def transfer(self, temp_dir: Path, source: Path):
@@ -141,6 +145,7 @@ class GsapiUploader(Uploader):
         logging.info(f"gsapi: opening bucket {bucket}"
                      f", saving prefix '{self.prefix}'")
         self.bucket = storage.Client().bucket(bucket)
+        self.bucket.blob(".null").upload_from_string("")
 
     @log_timing
     def transfer(self, temp_dir: Path, source: Path):
@@ -152,17 +157,40 @@ class GsapiUploader(Uploader):
         blob.upload_from_filename(temp_dir / source)
 
 
-class GsutilUploader(Uploader):
+class BotoUploader(Uploader):
     def __init__(self, dest: str):
-        logging.info(f"gsutil: saving URL {dest}")
-        self.url = dest
+        import boto3
+        host, self.bucket, self.prefix = dest.split("/", 2)
+        logging.info(f"boto: opening host {host}, saving bucket {self.bucket}"
+                     f", prefix '{self.prefix}'")
+        self.client = boto3.client('s3')
+        self.client.put_object(Bucket=self.bucket, Key=".null",
+                               Body=b"", ContentLength=0)
 
     @log_timing
     def transfer(self, temp_dir: Path, source: Path):
-        logging.info(f"gsutil: cp to {self.url}/{source}")
-        subprocess.run(["gsutil/gsutil", "cp",
-                        f"{temp_dir / source}",
-                        f"{self.url}/{source}"])
+        logging.info(f"boto: uploading to {self.prefix}/{source}")
+        self.client.upload_file(temp_dir / source,
+                              self.bucket, f"{self.prefix}/{source}")
+
+
+class MinioUploader(Uploader):
+    def __init__(self, dest: str):
+        from minio import Minio
+        host, self.bucket, self.prefix = dest.split("/", 2)
+        logging.info(f"minio: opening host {host}, saving bucket {self.bucket}"
+                     f", prefix '{self.prefix}'")
+        self.conn = Minio(host)
+        self.conn.put_object(self.bucket, ".null", BytesIO(b""), 0)
+
+    @log_timing
+    def transfer(self, temp_dir: Path, source: Path):
+        logging.info(f"minio: uploading to {self.prefix}/{source}")
+        self.conn.fput_object(
+            self.bucket,
+            f"{self.prefix}/{source}",
+            temp_dir / source
+        )
 
 
 class HttpUploader(Uploader):
@@ -180,9 +208,22 @@ class HttpUploader(Uploader):
         r.raise_for_status()
 
 
+class BbcpUploader(Uploader):
+    def __init__(self, dest: str):
+        self.host, path = dest.split("/", 1)
+        logging.info(f"bbcp: saving host {self.host} and path {path}")
+        self.path = Path(path)
+
+    @log_timing
+    def transfer(self, temp_dir: Path, source: Path):
+        logging.info(f"bbcp: dir {self.path / source.parent}; file {source}")
+        subprocess.run(["bbcp", "-A", self.path / source,
+                        f"{self.host}:{self.path / source}"])
+
+
 class ScpUploader(Uploader):
     def __init__(self, dest: str):
-        self.host, path = dest.split(":")
+        self.host, path = dest.split("/", 1)
         logging.info(f"scp: saving host {self.host} and path {path}")
         self.path = Path(path)
 
