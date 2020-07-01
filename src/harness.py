@@ -145,7 +145,10 @@ class GsapiUploader(Uploader):
         logging.info(f"gsapi: opening bucket {bucket}"
                      f", saving prefix '{self.prefix}'")
         self.bucket = storage.Client().bucket(bucket)
-        self.bucket.blob(".null").upload_from_string("")
+        try:
+            _ = self.bucket.blob(".null").download_as_string()
+        except Exception as exc:
+            logging.info(f"Ignored: {exc}")
 
     @log_timing
     def transfer(self, temp_dir: Path, source: Path):
