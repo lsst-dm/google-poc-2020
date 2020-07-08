@@ -6,7 +6,9 @@ import argparse
 from datetime import datetime, timedelta
 import functools
 import logging
+import os
 from pathlib import Path
+import re
 import socket
 import subprocess
 import tempfile
@@ -41,6 +43,8 @@ def build_parser() -> argparse.ArgumentParser:
                         help="temporary directory")
     parser.add_argument('-z', '--compress', action='store_true',
                         help="compress before transfer")
+    parser.add_argument('-p', '--private', action='store_true',
+                        help="use private Google Cloud interconnect")
     return parser
 
 
@@ -301,8 +305,20 @@ def main():
         style="{",
         level="INFO"
     )
+
+    node_match = re.search(r'-(\d+)$', socket.gethostname())
+    if not node_match:
+        node_match = re.search(r'(\d+)', socket.gethostname())
+    if node_match:
+        node_num = int(node_match[1])
+    else:
+        node_num = 0
+    if args.private:
+        with open("/etc/hosts", "a") as f:
+            print(f"199.36.153.{int(node_num) % 4 + 8} storage.googleapis.com",
+                  file=f)
     if not args.ccd_list:
-        args.ccd_list = [socket.gethostname()[-5:]]
+        args.ccd_list = [f"S{node_num}"]
 
     simulate(
         args.starttime,
@@ -315,6 +331,9 @@ def main():
         args.interval,
         args.numexp,
     )
+
+    while True:
+        pass
 
 
 if __name__ == "__main__":
