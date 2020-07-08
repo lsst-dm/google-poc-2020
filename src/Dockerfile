@@ -6,4 +6,4 @@ COPY data/ data/
 COPY bbcp bbcp
 COPY boto .boto
 COPY harness.py .
-ENTRYPOINT ["python3.8", "harness.py"]
+ENTRYPOINT ["python3.8", "harness.py", "-z", "-I", "./data", "-c", "MC", "-d", "gsapi://rubinobs-poc-transfer"]
