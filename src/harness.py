@@ -306,13 +306,20 @@ def main():
         level="INFO"
     )
 
-    node_match = re.search(r'-(\d+)$', socket.gethostname())
-    if not node_match:
-        node_match = re.search(r'(\d+)', socket.gethostname())
+    host_name = socket.gethostname()
+    node_match = re.search(r'-(\d+)$', host_name)
     if node_match:
         node_num = int(node_match[1])
     else:
-        node_num = 0
+        node_match = re.search(r'-(\w{5})$', host_name)
+        if node_match:
+            node_num = int(node_match[1], 36)
+        else:
+            node_match = re.search(r'(\d+)', host_name)
+            if node_match:
+                node_num = int(node_match[1])
+            else:
+                node_num = 0
     if args.private:
         with open("/etc/hosts", "a") as f:
             print(f"199.36.153.{int(node_num) % 4 + 8} storage.googleapis.com",
