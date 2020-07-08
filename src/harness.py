@@ -289,6 +289,11 @@ def simulate(
 
 
 def main():
+    if "APXFR_KEY" in os.environ:
+        with open("/root/secret.json", "w") as f:
+            print(os.environ["APXFR_KEY"], file=f)
+        os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "/root/secret.json"
+
     parser = build_parser()
     args = parser.parse_args()
     logging.basicConfig(
