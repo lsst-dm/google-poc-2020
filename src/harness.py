@@ -7,6 +7,7 @@ from datetime import datetime, timedelta
 import functools
 import logging
 from pathlib import Path
+import socket
 import subprocess
 import tempfile
 import time
@@ -17,7 +18,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description="Transfer a stream of CCD images."
     )
-    parser.add_argument('ccd_list', metavar='CCD', nargs='+',
+    parser.add_argument('ccd_list', metavar='CCD', nargs='*',
                         help=("CCD names are in RNN-SNN form"
                               ", R00-S00 for LATISS"))
     parser.add_argument('-d', '--destination', metavar='URL', required=True,
@@ -295,6 +296,9 @@ def main():
         style="{",
         level="INFO"
     )
+    if not args.ccd_list:
+        args.ccd_list = [socket.gethostname()[-5:]]
+
     simulate(
         args.starttime,
         args.inputdir,
