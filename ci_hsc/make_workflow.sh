@@ -1,7 +1,7 @@
 #!/usr/bin/env sh
 
 COLLECTION=testrun/output_1
-INPUTCOLL=calib/hsc,raw/hsc,masks/hsc,ref_cats,skymaps,shared/ci_hsc
+INPUTCOLL=HSC/calib,HSC/raw/all,HSC/masks,ref_cats,skymaps,shared/ci_hsc
 QGRAPH_FILE=hsc22
 INDIV=individual
 BPATH=$CI_HSC_GEN3_DIR/DATA/butler.yaml
