@@ -42,9 +42,11 @@ def generateDax(f, name="dax", noInitJob=False, initPickle=None):
             demandingTasks = set(['MakeWarpTask', 'CompareWarpAssembleCoaddTask',
                                   'DeblendCoaddSourcesSingleTask',
                                   'MeasureMergedCoaddSourcesTask'])
+            job.addProfile(peg.Profile(peg.Namespace.CONDOR, "request_cpus", "1"))
             if taskname in demandingTasks:
-                job.addProfile(peg.Profile(peg.Namespace.CONDOR, "request_memory", "7GB")) 
-                job.addProfile(peg.Profile(peg.Namespace.CONDOR, "request_cpus", "1")) 
+                job.addProfile(peg.Profile(peg.Namespace.CONDOR, "request_memory", "28GB"))
+            else:
+                job.addProfile(peg.Profile(peg.Namespace.CONDOR, "request_memory", "2GB"))
 
             filename = "quantum-%06d.pickle" % iq
             pickle = peg.File(filename)
