@@ -131,10 +131,11 @@ class GsapiUploader(Uploader):
     @log_timing
     def transfer(self, temp_dir: Path, source: Path):
         logging.info(f"gsapi: uploading to {self.prefix}/{source}")
+        size = 100*1024*1024
         if self.prefix == "":
-            blob = self.bucket.blob(f"{source}")
+            blob = self.bucket.blob(f"{source}", chunk_size=size)
         else:
-            blob = self.bucket.blob(f"{self.prefix}/{source}")
+            blob = self.bucket.blob(f"{self.prefix}/{source}", chunk_size=size)
         blob.upload_from_filename(temp_dir / source)
 
 
