@@ -13,6 +13,7 @@ import socket
 import subprocess
 import tempfile
 import time
+from urllib3.connection import HTTPConnection
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -39,6 +40,8 @@ def build_parser() -> argparse.ArgumentParser:
                         help="compress before transfer")
     parser.add_argument('-P', '--private', action='store_true',
                         help="use private Google Cloud interconnect")
+    parser.add_argument('-K', '--keepalive', action='store_true',
+                        help="use TCP keepalive options")
     return parser
 
 
@@ -231,6 +234,8 @@ def simulate(
         level="INFO"
     )
 
+    print(f"Socket opts = {HTTPConnection.default_socket_options}")
+
     hour, minute = starttime.split(":")
     seqnum_start = int(hour + minute) * 10
 
@@ -290,6 +295,13 @@ def main():
         with open("/etc/hosts", "a") as f:
             print(f"199.36.153.{int(node_num) % 4 + 8} storage.googleapis.com",
                   file=f)
+    if args.keepalive:
+        print("Using TCP keepalive")
+        HTTPConnection.default_socket_options += [
+            (socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1),
+            (socket.IPPROTO_TCP, socket.TCP_KEEPINTVL, 1),
+            (socket.IPPROTO_TCP, socket.TCP_KEEPIDLE, 1)
+        ]
 
     jobs = []
     for ccd in range(args.ccds):
