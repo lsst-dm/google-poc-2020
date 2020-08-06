@@ -1,0 +1,36 @@
+description: HSC RC2
+instrument: lsst.obs.subaru.HyperSuprimeCam
+inherits:
+  -
+    location: $PIPE_TASKS_DIR/pipelines/DataReleaseProduction.yaml
+    exclude:
+      - forcedPhotCcd
+tasks:
+  isr:
+    class: lsst.ip.isr.IsrTask
+    config:
+      doFringe: False
+      doStrayLight: False
+  makeWarpTask:
+    class: lsst.pipe.tasks.makeCoaddTempExp.MakeWarpTask
+    config:
+      matchingKernelSize: 29
+      makePsfMatched: True
+      modelPsf.defaultFwhm: 7.7
+      doApplyExternalPhotoCalib: False
+      doApplyExternalSkyWcs: False
+      doApplySkyCorr: False
+      doWriteEmptyWarps: True
+      python: config.warpAndPsfMatch.psfMatch.kernel['AL'].alardSigGauss = [1.0, 2.0, 4.5]
+  mergeDetections:
+    class: lsst.pipe.tasks.mergeDetections.MergeDetectionsTask
+    config:
+      priorityList: ["i", "r", "z", "y", "g"]
+  deblend:
+    class: lsst.pipe.tasks.deblendCoaddSourcesPipeline.DeblendCoaddSourcesSingleTask
+    config:
+      singleBandDeblend.propagateAllPeaks: True
+  mergeMeasurements:
+    class: lsst.pipe.tasks.mergeMeasurements.MergeMeasurementsTask
+    config:
+      priorityList: ["i", "r", "z", "y", "g"]
