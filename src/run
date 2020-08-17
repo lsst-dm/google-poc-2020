@@ -1,0 +1,11 @@
+#!/bin/bash
+
+docker run \
+    -v `pwd`/../secrets:/secrets \
+    -e GOOGLE_APPLICATION_CREDENTIALS=/secrets/light-team-275220-2a60dc727e58.json \
+    harness:local \
+    -d gs://rubinobs-poc-alert/gsapi \
+    -n 5 \
+    -c CC \
+    -I ./data \
+    "$@"
