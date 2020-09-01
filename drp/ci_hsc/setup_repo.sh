@@ -1,9 +1,13 @@
 #!/usr/bin/env sh
 
-export BUCKET=bucket_w_2020_30
+if [ "$1" != "" ]; then
+    export BUCKET=$1
+else
+    echo "Need the datastore bucket name"
+fi
+
 export S3_ENDPOINT_URL=https://storage.googleapis.com
-# Need a configured butler.yaml 
-butler create s3://$BUCKET --seed-config  butler.yaml --override
+
 butler register-instrument s3://$BUCKET lsst.obs.subaru.HyperSuprimeCam
 butler write-curated-calibrations s3://$BUCKET  HSC
 
