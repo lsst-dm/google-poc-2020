@@ -6,11 +6,11 @@ COLLECTION=testrun/output_1
 INPUTCOLL=HSC/calib,HSC/raw/all,refcats,HSC/masks,skymaps
 QGRAPH_FILE=run220
 INDIV=individual
-BPATH=butler.yaml
-
+BPATH=$1
 
 pipetask qgraph -b $BPATH \
-    -d "(tract=9615 or tract=9697 or (tract=9813 and patch not in (0, 8, 9, 63, 72, 73, 80))) and detector IN (0..103) and detector != 9" \
+    -d "(tract=9615 or tract=9697 or (tract=9813 and patch not in (0, 8, 9, 63, 72, 73, 80))) \
+        and detector IN (0..103) and detector != 9 and instrument='HSC' and skymap='hsc_rings_v1'" \
     -i $INPUTCOLL -o "$COLLECTION" \
     -p HSC-RC2.yaml \
     --loglevel pipe.base=DEBUG --longlog\
