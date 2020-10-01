@@ -1,6 +1,6 @@
 {
   "variables": {
-    "image_name": "test-w-2020-30",
+    "image_name": "test-w-2020-30-test",
     "lsst_version": "w_2020_30",
     "lsst_splenv_ref": "4f18ecb"
 
