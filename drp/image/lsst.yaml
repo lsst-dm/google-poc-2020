@@ -1,0 +1,36 @@
+---
+# Copyright 2020 Google LLC.
+# This software is provided as-is, without warranty or representation for any use or purpose.
+# Your use of it is subject to your agreement with Google.
+- name: "Install LSST Stack"
+  hosts: localhost
+  become: true
+
+  tasks:
+    - name: Make LSST Directory
+      file:
+        path: /opt/lsst/software/stack
+        state: directory
+
+    - name: Download LSST Stack sources
+      uri:
+        url: https://raw.githubusercontent.com/lsst/lsst/master/scripts/newinstall.sh
+        dest: /tmp/newinstall.sh
+    - name: Run LSST Newinstall
+      command: bash /tmp/newinstall.sh -b 
+      environment: 
+        LSST_SPLENV_REF: "{{ lsst_splenv_ref }}"
+      args:
+        chdir: /opt/lsst/software/stack
+    - name: Adding EUPS installs
+      shell:
+        cmd: |
+          source /opt/lsst/software/stack/loadLSST.bash
+          eups distrib install -v -v -U -t {{ lsst_version }} lsst_distrib
+        executable: /bin/bash
+    - name: Conda install
+      shell:
+        cmd: |
+          source /opt/lsst/software/stack/loadLSST.bash
+          conda install psycopg2 pgcli python-pegasus-wms flask=0.12.4
+        executable: /bin/bash

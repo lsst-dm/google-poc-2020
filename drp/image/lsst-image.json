@@ -1,0 +1,67 @@
+{
+  "variables": {
+    "image_name": "test-w-2020-30",
+    "lsst_version": "w_2020_30",
+    "lsst_splenv_ref": "4f18ecb"
+
+  },
+  "builders": [
+    {
+      "type": "googlecompute",
+      "project_id": "htcondor-lsst",
+      "source_image_family": "centos-7",
+      "disk_size": "200",
+      "ssh_username": "packer",
+      "omit_external_ip": "false",
+      "use_internal_ip": "false",
+      "zone": "us-central1-f",
+      "image_name": "{{user `image_name`}}",
+      "image_family": "lsst",
+      "image_description": "LSST distro",
+      "machine_type": "n1-standard-32",
+      "metadata": {
+        "enable-oslogin": "false"
+      }
+    }
+  ],
+  "provisioners": [
+    {
+      "type": "shell",
+      "inline": [
+        "sudo sed -i 's/#baseurl/baseurl/g' /etc/yum.repos.d/CentOS-Base.repo",
+        "sudo sed -i 's/enabled=1/enabled=0/g' /etc/yum/pluginconf.d/fastestmirror.conf",
+        "sudo yum install -y ansible"
+      ]
+    },
+    {
+      "type": "ansible-local",
+      "playbook_file": "base-os.yaml"
+    },
+    {
+      "type": "ansible-local",
+      "playbook_file": "python3.yaml"
+    },
+    {
+      "type": "ansible-local",
+      "playbook_file": "htcondor.yaml"
+    },
+    {
+      "type": "ansible-local",
+      "playbook_file": "fluentd.yaml"
+    },
+    {
+      "type": "ansible-local",
+      "playbook_file": "lsst.yaml",
+      "extra_arguments": "-vvv --extra-vars 'lsst_version={{user `lsst_version`}} lsst_splenv_ref={{user `lsst_splenv_ref`}}'" 
+
+    }
+  ],
+  "post-processors": [
+    [
+      {
+        "type": "shell-local",
+        "command": "gcloud compute images add-iam-policy-binding {{user `image_name`}} --member='allAuthenticatedUsers' --role='roles/compute.imageUser'"
+      }
+    ]
+  ]
+}

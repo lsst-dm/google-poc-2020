@@ -1,0 +1,31 @@
+wget -O /etc/yum.repos.d/pegasus.repo http://download.pegasus.isi.edu/wms/download/rhel/7/pegasus.repo
+yum search pegasus
+yum install pegasus
+
+
+from google_compute_engine import constants
+from google_compute_engine import config_manager
+from google_compute_engine import metadata_watcher
+from google_compute_engine import metadata_watcher
+from google_compute_engine.accounts import accounts_utils
+
+print constants.SYSCONFDIR
+
+instance_config = config_manager.ConfigManager()
+watcher = metadata_watcher.MetadataWatcher()
+
+md = watcher.GetMetadata()
+
+au = accounts_utils.AccountsUtils()
+
+users = au.GetConfiguredUsers()
+
+print users
+
+
+
+#print md.viewvalues()
+
+#print instance_config.GetOptionString('Accounts', 'groups')
+#print instance_config.GetOptionString('Daemons', 'accounts_daemon')
+#print instance_config.GetOptionString('Accounts', 'usermod_cmd')

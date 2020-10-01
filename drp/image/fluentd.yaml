@@ -1,0 +1,98 @@
+---
+# Copyright 2020 Google LLC.
+# This software is provided as-is, without warranty or representation for any use or purpose.
+# Your use of it is subject to your agreement with Google.
+- name: "Install Fluentd. Needed for autoscaling."
+  hosts: localhost
+  become: true
+
+  tasks:
+    - name: Install Fluentd
+      block:
+      - name: Make config file
+        file:
+          path: /opt/lsst/software/stack
+          state: directory
+
+      - name: Download fluentd shell script
+        get_url:
+          url: https://dl.google.com/cloudagents/install-logging-agent.sh
+          force: yes
+          dest: /tmp/install_logging_agent_fluentd.sh
+
+      - name: install Fluentd via script
+        script: /tmp/install_logging_agent_fluentd.sh
+        args:
+          executable: bash
+
+      - name: Install Fluentd Module for Metrics
+        command: /usr/sbin/google-fluentd-gem install fluent-plugin-stackdriver-monitoring
+      
+      - name: Insert into config file
+        blockinfile:
+          path: /etc/google-fluentd/config.d/condor.conf
+          marker: "# -- {mark} ANSIBLE MANAGED BLOCK "
+          create: yes
+          block: |
+            <source>
+              @type tail
+              format none
+              path /var/log/condor/*Log
+              pos_file /var/lib/google-fluentd/pos/condor.pos
+              read_from_head true
+              tag condor
+            </source>
+            <source>
+              @type exec
+              command condor_status -direct `hostname` -format "%f " TotalLoadAvg |  cut -d " " -f 1
+                <parse>
+                  keys la0
+                </parse>
+              tag condor_la0
+              run_interval 5s
+            </source>
+            <source>
+              @type exec
+              command condor_status -schedd -format "%d" TotalIdleJobs
+                <parse>
+                  keys q0
+                </parse>
+              tag condor_q0
+              run_interval 5s
+            </source>
+            <match condor_la0>
+              @type stackdriver_monitoring
+              project "#{`curl -H \"Metadata-Flavor: Google\" http://metadata.google.internal/computeMetadata/v1/project/project-id`}"
+
+              <custom_metrics>
+                key la0
+                type custom.googleapis.com/la0
+                metric_kind GAUGE
+                value_type DOUBLE
+              </custom_metrics>
+            </match>
+            <match condor_q0>
+              @type stackdriver_monitoring
+              project "#{`curl -H \"Metadata-Flavor: Google\" http://metadata.google.internal/computeMetadata/v1/project/project-id`}"
+              <custom_metrics>
+                key q0
+                type custom.googleapis.com/q0
+                metric_kind GAUGE
+                value_type INT64
+              </custom_metrics>
+            </match>
+      - name: Restart fluentd service
+        systemd:
+          name: google-fluentd
+          state: restarted
+
+      rescue:
+      - name: clean up
+        file: 
+          path: /tmp/install_logging_agent_fluentd.sh
+          state: absent
+          
+      - name: clean up
+        file: 
+          path: /etc/google-fluentd/config.d/condor.conf
+          state: absent

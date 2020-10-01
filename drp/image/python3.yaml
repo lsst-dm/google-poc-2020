@@ -1,0 +1,53 @@
+---
+# Copyright 2020 Google LLC.
+# This software is provided as-is, without warranty or representation for any use or purpose.
+# Your use of it is subject to your agreement with Google.
+- name: "Install Python3 Safely"
+  hosts: localhost
+  become: true
+
+  vars:
+    python_version: 3.8.3
+    python_maj_version: 3.8
+
+  tasks:
+    - name: Install Python3 Safely, don't break yum
+      uri:
+        url: https://www.python.org/ftp/python/{{ python_version }}/Python-{{ python_version }}.tgz
+        dest: /tmp/python-{{ python_version }}.tgz
+        force: true
+
+    - name: Untar python source
+      unarchive:
+        src: /tmp/python-{{ python_version }}.tgz
+        dest: /tmp
+
+    - name: config python src tree
+      shell:
+        cmd: ./configure --prefix=/usr/local/python3
+        chdir: /tmp/Python-{{ python_version }}
+
+    - name: compile python
+      shell:
+        cmd: make all
+        chdir: /tmp/Python-{{ python_version }}
+
+    - name: install python 
+      shell:
+        cmd: make altinstall 
+        chdir: /tmp/Python-{{ python_version }}
+
+    - name: make copy python 
+      shell:
+        cmd: cp python{{ python_maj_version }} python
+        chdir: /usr/local/python3/bin
+
+    - name: remove Files
+      file:
+        path: /tmp/python-{{ python_version }}.tgz
+        state: absent
+
+    - name: remove DIRS
+      file:
+        path: /tmp/Python-{{ python_version }}
+        state: absent

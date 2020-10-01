@@ -1,0 +1,77 @@
+---
+# Copyright 2020 Google LLC.
+# This software is provided as-is, without warranty or representation for any use or purpose.
+# Your use of it is subject to your agreement with Google.
+- name: "Config base-os"
+  hosts: localhost
+  become: true
+
+  tasks:
+    - name: disable SELinux
+      selinux:
+        state: disabled
+
+    - name: ensure firewalld is installed
+      yum:
+        name: firewalld
+        state: present
+
+    - name: ensure firewalld is disabled
+      service:
+        name: firewalld
+        enabled: false
+        state: stopped
+
+    - name: yum update all
+      yum:
+        name: "*"
+        state: latest
+
+    #make sure the kernel version is in line with
+    # the kernel sources (from kernel-devel)
+    - name: update kernel
+      yum:
+        name: kernel
+        state: latest
+
+    - name: install packages
+      yum:
+        name: "{{ item }}"
+        state: latest
+      loop: ["bison", "blas", "bzip2", "bzip2-devel", "conda", "cmake", "curl", "emacs-nox", "fio","flex", "fontconfig", "freetype-devel", "gawk", "gcc", "gcc-c++", "gcc-gfortran", "gettext", "git", "glib2-devel", "iotop", "java-1.8.0-openjdk", "kernel-devel", "libcurl-devel", "libuuid-devel", "libXext", "libXrender", "libXt-devel", "make", "mdadm", "mesa-libGL", "ncurses-devel", "net-tools", "openssl-devel", "patch", "perl", "perl-ExtUtils-MakeMaker", "readline-devel", "sed", "sysstat", "tar", "tmux", "vim", "wget", "which", "zlib-devel","postgresql.x86_64" ]
+
+    - name: ensure NTP is installed
+      yum:
+        name: ntp
+        state: present
+    
+    - name: restart NTP
+      service:
+        name: ntpd
+        enabled: yes
+        state: started
+
+    - name: disable ntpdate
+      service:
+        name: ntpdate
+        enabled: no
+        state: stopped
+
+    - name: raise file limit (soft)
+      pam_limits:
+        domain: '*'
+        limit_item: nofile
+        limit_type: soft
+        value: "32768"
+
+    - name: raise file limit (hard)
+      pam_limits:
+        domain: '*'
+        limit_item: nofile
+        limit_type: hard
+        value: "65536"
+
+
+
+
+
