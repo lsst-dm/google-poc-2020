@@ -11,4 +11,4 @@ makeGen3Skymap.py s3://$BUCKET -C $CI_HSC_GEN3_DIR/configs/skymap.py skymaps
 butler ingest-raws s3://$BUCKET $TESTDATA_CI_HSC_DIR/raw
 
 butler define-visits s3://$BUCKET -i HSC --collections HSC/raw/all
-butler import s3://$BUCKET $TESTDATA_CI_HSC_DIR --export-file $CI_HSC_GEN3_DIR/resources/external.yaml --output-run shared/ci_hsc
+butler import s3://$BUCKET $TESTDATA_CI_HSC_DIR --export-file $CI_HSC_GEN3_DIR/resources/external.yaml
