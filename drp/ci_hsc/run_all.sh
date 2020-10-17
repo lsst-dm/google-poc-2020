@@ -15,4 +15,5 @@ psql postgresql://$USERNAME@$DB -c "CREATE EXTENSION btree_gist;"
 export DIR=`dirname "${BASH_SOURCE[0]}"`
 python $DIR/create_repo.py $BUCKET $USERNAME $DB
 source $DIR/setup_repo.sh $BUCKET
-source $DIR/make_workflow.sh  s3://$BUCKET
+source $DIR/make_workflow.sh  s3://$BUCKET $DIR/workflows
+python $DIR/upload.py $BUCKET-wf $DIR/workflows
