@@ -8,7 +8,7 @@ BPATH="$1"
 
 pipetask qgraph -d "patch = 69" -b $BPATH \
     -i "$INPUTCOLL" -o "$COLLECTION" \
-    -p "$CI_HSC_GEN3_DIR"/pipelines/CiHsc.yaml \
+    -p "$OBS_SUBARU_DIR"/pipelines/DRP.yaml \
     --save-qgraph "$QGRAPH_FILE.pickle"
 
 # All dataset types need to be registered before the next command

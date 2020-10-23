@@ -8,7 +8,7 @@ BPATH="$1"
 
 pipetask qgraph -d "exposure = 903334 and detector = 22" -b $BPATH \
     -i "$INPUTCOLL" -o "$COLLECTION" \
-    -p "$PIPE_TASKS_DIR"/pipelines/ProcessCcd.yaml --instrument lsst.obs.subaru.HyperSuprimeCam \
+    -p "$PIPE_TASKS_DIR"/pipelines/DRP.yaml:processCcd --instrument lsst.obs.subaru.HyperSuprimeCam \
     --save-qgraph "$QGRAPH_FILE.pickle"
 
 # All dataset types need to be registered before the next command
