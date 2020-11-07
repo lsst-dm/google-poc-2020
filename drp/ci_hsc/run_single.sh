@@ -12,7 +12,8 @@ setup -j -r ~/testdata_ci_hsc
 
 psql postgresql://$USERNAME@$DB -c "CREATE EXTENSION btree_gist;"
 
-cat << EOF > butler.yaml
+mkdir $CI_HSC_GEN3_DIR/DATA
+cat << EOF > $CI_HSC_GEN3_DIR/DATA/butler.yaml
 datastore:
   cls: lsst.daf.butler.datastores.s3Datastore.S3Datastore
   records:
@@ -22,5 +23,4 @@ registry:
   db: postgresql://$USERNAME@$DB:5432
 EOF
 
-export BPATH=`realpath butler.yaml`
-scons --directory=$CI_HSC_GEN3_DIR --repo-root=s3://$BUCKET --butler-config=$BPATH --config-override >& log_scons
+scons --directory=$CI_HSC_GEN3_DIR --repo-root=s3://$BUCKET --butler-config=$CI_HSC_GEN3_DIR/DATA/butler.yaml --config-override >& log_scons
