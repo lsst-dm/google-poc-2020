@@ -15,9 +15,7 @@ psql postgresql://$USERNAME@$DB -c "CREATE EXTENSION btree_gist;"
 mkdir $CI_HSC_GEN3_DIR/DATA
 cat << EOF > $CI_HSC_GEN3_DIR/DATA/butler.yaml
 datastore:
-  cls: lsst.daf.butler.datastores.s3Datastore.S3Datastore
-  records:
-    table: s3_datastore_records
+  cls: lsst.daf.butler.datastores.fileDatastore.FileDatastore
   root: s3://$BUCKET
 registry:
   db: postgresql://$USERNAME@$DB:5432

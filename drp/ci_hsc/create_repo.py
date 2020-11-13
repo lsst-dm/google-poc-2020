@@ -9,7 +9,7 @@ db = sys.argv[3]
 print(f"Creating repo at s3://{bucket} and {username}@{db}")
 
 config = Config()
-config[".datastore.cls"] = "lsst.daf.butler.datastores.s3Datastore.S3Datastore"
+config[".datastore.cls"] = "lsst.daf.butler.datastores.fileDatastore.FileDatastore"
 config[".datastore.root"] = f"s3://{bucket}"  # TODO
 config[".registry.db"] = f"postgresql://{username}@{db}:5432"
 
