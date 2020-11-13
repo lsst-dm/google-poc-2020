@@ -54,7 +54,8 @@ def generateDax(f, name="dax", noInitJob=False, initPickle=None):
             job.uses(pickle, link=peg.Link.INPUT)
             job.uses(butler, link=peg.Link.INPUT)
             job.addArguments("run", "-b", butler, "-i INCOL --output-run OUTCOL",
-                             "--extend-run --skip-init-writes --qgraph", pickle)
+                             "--extend-run --skip-init-writes",
+                             "--clobber-partial-outputs --skip-existing --qgraph", pickle)
 
             logfile = peg.File("log.%s.%06d.out" % (taskname, iq) )
             dax.addFile(logfile)
