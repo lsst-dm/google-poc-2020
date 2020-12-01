@@ -1,8 +1,8 @@
 #!/usr/bin/env sh
 
 COLLECTION=testrun/output_1
-INPUTCOLL=HSC/calib,HSC/raw/all,HSC/masks,refcats,skymaps
-QGRAPH_FILE=hsc22
+INPUTCOLL=HSC/defaults
+QGRAPH_FILE=hsc48
 INDIV=individual
 BPATH="$1"
 OUTDIR="$2"
@@ -11,7 +11,7 @@ if [ ! -d $OUTDIR/$INDIV ]; then
   mkdir -p $OUTDIR/$INDIV
 fi
 
-pipetask qgraph -d "patch = 69" -b $BPATH \
+pipetask qgraph -d "skymap='discrete/ci_hsc' AND tract=0 AND patch = 69" -b $BPATH \
     -i "$INPUTCOLL" -o "$COLLECTION" \
     -p "$OBS_SUBARU_DIR"/pipelines/DRP.yaml \
     --save-qgraph $OUTDIR/$QGRAPH_FILE.pickle

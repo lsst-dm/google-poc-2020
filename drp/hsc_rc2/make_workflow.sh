@@ -3,8 +3,8 @@
 export S3_ENDPOINT_URL=https://storage.googleapis.com
 
 COLLECTION=testrun/output_1
-INPUTCOLL=HSC/calib,HSC/raw/all,refcats,HSC/masks,skymaps
-QGRAPH_FILE=run220
+INPUTCOLL=HSC/defaults
+QGRAPH_FILE=rc49
 INDIV=individual
 BPATH=$1
 
