@@ -8,12 +8,13 @@ QGRAPH_FILE=rc49
 INDIV=individual
 BPATH=$1
 
-pipetask qgraph -b $BPATH \
+pipetask \
+    --log-level pipe.base=DEBUG --long-log \
+    qgraph -b $BPATH \
     -d "(tract=9615 or tract=9697 or (tract=9813 and patch not in (0, 8, 9, 63, 72, 73, 80))) \
         and detector IN (0..103) and detector != 9 and instrument='HSC' and skymap='hsc_rings_v1'" \
     -i $INPUTCOLL -o "$COLLECTION" \
     -p HSC-RC2.yaml \
-    --loglevel pipe.base=DEBUG --longlog\
     --save-qgraph "$QGRAPH_FILE.pickle"
 
 # All dataset types need to be registered before the next command
