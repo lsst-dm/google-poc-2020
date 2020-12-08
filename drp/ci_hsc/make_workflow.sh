@@ -14,16 +14,16 @@ fi
 pipetask qgraph -d "skymap='discrete/ci_hsc' AND tract=0 AND patch = 69" -b $BPATH \
     -i "$INPUTCOLL" -o "$COLLECTION" \
     -p "$OBS_SUBARU_DIR"/pipelines/DRP.yaml \
-    --save-qgraph $OUTDIR/$QGRAPH_FILE.pickle
+    --save-qgraph $OUTDIR/$QGRAPH_FILE.qgraph
 
 # All dataset types need to be registered before the next command
 pipetask run -b $BPATH \
    --output-run "$COLLECTION" \
-   --init-only --register-dataset-types --qgraph $OUTDIR/$QGRAPH_FILE.pickle
+   --init-only --register-dataset-types --qgraph $OUTDIR/$QGRAPH_FILE.qgraph
 
-pipetask qgraph --qgraph $OUTDIR/$QGRAPH_FILE.pickle --show workflow -b $BPATH \
+pipetask qgraph --qgraph $OUTDIR/$QGRAPH_FILE.qgraph --show workflow -b $BPATH \
   -i "$INPUTCOLL" \
-  --save-single-quanta $OUTDIR/$INDIV/quantum-{:06d}.pickle  >& $OUTDIR/wf
+  --save-single-quanta $OUTDIR/$INDIV/quantum-{:06d}.qgraph  >& $OUTDIR/wf
 
 export DIR=`dirname "${BASH_SOURCE[0]}"`
-python $DIR/../python/pegasusize.py --initPickle $QGRAPH_FILE.pickle -i $OUTDIR/wf -o $OUTDIR/wf.dax
+python $DIR/../python/pegasusize.py --initPickle $QGRAPH_FILE.qgraph -i $OUTDIR/wf -o $OUTDIR/wf.dax

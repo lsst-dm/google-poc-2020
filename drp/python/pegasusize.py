@@ -48,7 +48,7 @@ def generateDax(f, name="dax", noInitJob=False, initPickle=None):
             else:
                 job.addProfile(peg.Profile(peg.Namespace.CONDOR, "request_memory", "2GB"))
 
-            filename = "quantum-%06d.pickle" % iq
+            filename = "quantum-%06d.qgraph" % iq
             pickle = peg.File(filename)
             dax.addFile(pickle)
             job.uses(pickle, link=peg.Link.INPUT)
@@ -87,7 +87,7 @@ if __name__ == "__main__":
                         help="file name for the output dax xml")
     parser.add_argument("--noInit",  action='store_true',
                         help="a flag to ignore the init job")
-    parser.add_argument("--initPickle", type=str, default="test.pickle",
+    parser.add_argument("--initPickle", type=str, default="test.qgraph",
                         help="file name of the wf pickle that will be used in the init job ")
 
     args = parser.parse_args()

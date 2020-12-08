@@ -14,7 +14,7 @@ for folder in (thisDir, thisDir+"/../../pegasus/"):
     for root, dirs, files in os.walk(folder):
         for filename in files:
             fullpath = os.path.join(root, filename)
-            # Put all qgraph pickle files to the "input" subfolder
-            key = "input/" + filename if fullpath.endswith("pickle") else filename
+            # Put all qgraph files to the "input" subfolder
+            key = "input/" + filename if fullpath.endswith("qgraph") else filename
             print(f"Upload {key} from {fullpath}")
             s3client.upload_file(Bucket=bucketName, Key=key, Filename=fullpath)
