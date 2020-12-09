@@ -10,7 +10,7 @@ thisDir = sys.argv[2]
 
 s3client.create_bucket(Bucket=bucketName)
 
-for folder in (thisDir, thisDir+"/../../pegasus/"):
+for folder in (thisDir+"/../pegasus/",):
     for root, dirs, files in os.walk(folder):
         for filename in files:
             fullpath = os.path.join(root, filename)

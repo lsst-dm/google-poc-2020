@@ -6,10 +6,8 @@ QGRAPH_FILE=hsc48
 INDIV=individual
 BPATH="$1"
 OUTDIR="$2"
+LOCALDIR="$3"
 
-if [ ! -d $OUTDIR/$INDIV ]; then
-  mkdir -p $OUTDIR/$INDIV
-fi
 
 pipetask qgraph -d "skymap='discrete/ci_hsc' AND tract=0 AND patch = 69" -b $BPATH \
     -i "$INPUTCOLL" -o "$COLLECTION" \
@@ -23,7 +21,7 @@ pipetask run -b $BPATH \
 
 pipetask qgraph --qgraph $OUTDIR/$QGRAPH_FILE.qgraph --show workflow -b $BPATH \
   -i "$INPUTCOLL" \
-  --save-single-quanta $OUTDIR/$INDIV/quantum-{:06d}.qgraph  >& $OUTDIR/wf
+  --save-single-quanta $OUTDIR/$INDIV/quantum-{:06d}.qgraph  >& $LOCALDIR/wf
 
 export DIR=`dirname "${BASH_SOURCE[0]}"`
-python $DIR/../python/pegasusize.py --initPickle $QGRAPH_FILE.qgraph -i $OUTDIR/wf -o $OUTDIR/wf.dax
+python $DIR/../python/pegasusize.py --initPickle $QGRAPH_FILE.qgraph -i $LOCALDIR/wf -o $LOCALDIR/wf.dax
