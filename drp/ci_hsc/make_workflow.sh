@@ -3,7 +3,7 @@
 COLLECTION=testrun/output_1
 INPUTCOLL=HSC/defaults
 QGRAPH_FILE=hsc48
-INDIV=individual
+INDIV=input
 BPATH="$1"
 OUTDIR="$2"
 LOCALDIR="$3"

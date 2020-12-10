@@ -9,18 +9,13 @@ def generateDax(f, name="dax", noInitJob=False, initPickle=None):
     """Generate a Pegasus DAX abstract workflow"""
     dax = peg.ADAG(name)
 
-    # All jobs depend on the butler yaml
-    butler = peg.File("butler.yaml")
-    dax.addFile(butler)
-
     if not noInitJob:
         # Add the init job
         init = peg.Job(name="pipetask", id=999999) # need a unique number
         pickle = peg.File(initPickle)
         dax.addFile(pickle)
         init.uses(pickle, link=peg.Link.INPUT)
-        init.uses(butler, link=peg.Link.INPUT)
-        init.addArguments("run", "-b", butler, "-i INCOL --output-run OUTCOL",
+        init.addArguments("run", "-b BUTLER -i INCOL --output-run OUTCOL",
                           "--init-only --register-dataset-types --qgraph", pickle)
         logfile = peg.File("log.init.out")
         dax.addFile(logfile)
@@ -52,8 +47,7 @@ def generateDax(f, name="dax", noInitJob=False, initPickle=None):
             pickle = peg.File(filename)
             dax.addFile(pickle)
             job.uses(pickle, link=peg.Link.INPUT)
-            job.uses(butler, link=peg.Link.INPUT)
-            job.addArguments("run", "-b", butler, "-i INCOL --output-run OUTCOL",
+            job.addArguments("run", "-b BUTLER -i INCOL --output-run OUTCOL",
                              "--extend-run --skip-init-writes",
                              "--clobber-partial-outputs --skip-existing --qgraph", pickle)
 
