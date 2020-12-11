@@ -1,11 +1,14 @@
 #!/bin/bash
 export S3_ENDPOINT_URL=https://storage.googleapis.com
 export HOME=/tmp
+export COL=`date +%y%m%d%H%M`
+export REP=s/OUTCOL/hfc\\/$COL/
+sed $REP wf.dax > wfx.dax
 
 pegasus-plan \
         --verbose \
         --conf pegasus.properties \
-        --dax wf.dax \
+        --dax wfx.dax \
         --dir submit \
         --cleanup none \
         --sites gcp \
