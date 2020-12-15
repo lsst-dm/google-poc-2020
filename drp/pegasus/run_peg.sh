@@ -1,6 +1,5 @@
 #!/bin/bash
 export S3_ENDPOINT_URL=https://storage.googleapis.com
-export HOME=/tmp
 export COL=`date +%y%m%d%H%M`
 export REP=s/OUTCOL/hfc\\/$COL/
 sed $REP wf.dax > wfx.dax
