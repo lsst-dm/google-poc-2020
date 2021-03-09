@@ -14,13 +14,14 @@
             <file-server operation="all" url="file://${HOME}/output"/>
         </directory>
         <profile namespace="env" key="PEGASUS_HOME">/usr/</profile>
+        <profile namespace="pegasus" key="pegasus_lite_env_source">${PWD}/stack_source.sh</profile>
     </site>
     <site handle="gcp" arch="x86_64" os="LINUX">
         <profile namespace="pegasus" key="style">condor</profile>
         <profile namespace="pegasus" key="auxillary.local">true</profile>
         <profile namespace="condor" key="universe">vanilla</profile>
-        <profile namespace="condor" key="getenv">true</profile>
         <profile namespace="dagman" key="retry">0</profile>
+        <profile namespace="env" key="HOME">/tmp/</profile>
     </site>
 
 </sitecatalog>
